@@ -41,7 +41,7 @@ from database import (
 
 # AI & Scraping Modules
 from modules.scraper import scrape_website
-from modules.llm_engine import analyze_content, generate_email
+from modules.llm_engine import analyze_content, generate_email, analyze_document
 from modules.market_analyzer import analyze_market, match_services
 from modules.serp_hawk_email import generate_serp_hawk_email
 from modules.fallback_analyzer import analyze_company_name_fallback
