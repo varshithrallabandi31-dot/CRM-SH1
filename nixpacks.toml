@@ -1,8 +1,13 @@
 [phases.setup]
-nixPkgs = ["python310", "playwright"]
+nixPkgs = ["python310", "playwright-driver"]
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = ["python -m venv .venv", ". .venv/bin/activate && pip install -r requirements.txt"]
 
 [phases.build]
-cmds = ["pip install -r requirements.txt", "playwright install --with-deps chromium"]
+dependsOn = ["install"]
+cmds = [". .venv/bin/activate && playwright install --with-deps chromium"]
 
 [start]
-cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+cmd = ". .venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port $PORT"
