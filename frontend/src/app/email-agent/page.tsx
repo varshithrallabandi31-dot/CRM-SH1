@@ -46,7 +46,7 @@ export default function EmailAgentPage() {
 
   const fetchActivities = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/activities');
+      const res = await axios.get(`${API_BASE_URL}/activities`);
       setActivities(res.data.activities || []);
     } catch (err) {
       console.error("Failed to fetch activities", err);
@@ -67,7 +67,7 @@ export default function EmailAgentPage() {
       data.append('primary_email', formData.primary_email);
 
       // Call generate endpoint
-      const res = await axios.post('http://localhost:8000/generate', {
+      const res = await axios.post(`${API_BASE_URL}/generate`, {
         urls: [formData.website_url]
       });
 
@@ -102,7 +102,7 @@ export default function EmailAgentPage() {
 
     try {
       // Send both drafts (handled by backend)
-      const res = await axios.post('http://localhost:8000/send-lead', {
+      const res = await axios.post(`${API_BASE_URL}/send-lead`, {
         ...draft,
         manual: isManual
       });
