@@ -105,10 +105,10 @@ def send_email_outlook(to_email, subject, body, sender_email, sender_password, s
         # Use SSL for port 465, TLS for port 587
         if smtp_port == 465:
             # SSL connection
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port, context=context)
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port, context=context, timeout=30)
         else:
             # TLS connection
-            server = smtplib.SMTP(smtp_server, smtp_port)
+            server = smtplib.SMTP(smtp_server, smtp_port, timeout=30)
             server.starttls(context=context)
         
         server.login(sender_email, sender_password)

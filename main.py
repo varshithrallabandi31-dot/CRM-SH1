@@ -57,7 +57,9 @@ HOURLY_EMAIL_LIMIT = int(os.getenv("HOURLY_EMAIL_LIMIT", 50))
 OUTLOOK_EMAIL = os.getenv('OUTLOOK_EMAIL')
 OUTLOOK_PASSWORD = os.getenv('OUTLOOK_PASSWORD')
 SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+
 SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
+IMAP_SERVER = os.getenv('IMAP_SERVER') # Optional: For saving to Sent folder if auto-detect fails
 
 # Create output directories
 os.makedirs('static/generated_images', exist_ok=True)
@@ -441,7 +443,8 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
                 sender_password=OUTLOOK_PASSWORD,
                 smtp_server=SMTP_SERVER,
                 smtp_port=SMTP_PORT,
-                html=True
+                html=True,
+                imap_server=IMAP_SERVER
             )
             outbound_sent = True
         else:
@@ -465,7 +468,8 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
                 sender_password=OUTLOOK_PASSWORD,
                 smtp_server=SMTP_SERVER,
                 smtp_port=SMTP_PORT,
-                html=True
+                html=True,
+                imap_server=IMAP_SERVER
             )
             inbound_sent = True
         else:
@@ -531,32 +535,62 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
     
     # 6. Sync to Company Table (User Request: Store in company table as well)
     try:
-        company_stmt = select(Company).where(Company.primary_email == email)
+        # Check for existing company by Email OR Website URL to avoid Unique violations
+        from sqlalchemy import or_
+        
+        url_check = website_url if website_url else ""
+        
+        company_stmt = select(Company).where(
+            or_(
+                Company.primary_email == email,
+                (Company.website_url == url_check) & (Company.website_url != None)
+            )
+        )
         existing_company = session.exec(company_stmt).first()
         
         if existing_company:
-             existing_company.company_name = company_name
-             if website_url:
+             # Update existing
+             if not existing_company.company_name:
+                 existing_company.company_name = company_name
+             if website_url and not existing_company.website_url:
                 existing_company.website_url = website_url
+             if email and not existing_company.primary_email:
+                 existing_company.primary_email = email
+                 
+             # Update services if available
+             if recommended_services_str:
+                 existing_company.recommended_services = recommended_services_str
+                 
              session.add(existing_company)
         else:
+             # Create new
              new_company = Company(
                  company_name=company_name,
                  website_url=website_url,
-                 primary_email=email
+                 primary_email=email,
+                 recommended_services=recommended_services_str,
+                 email_sent_status=outbound_sent
              )
              session.add(new_company)
+             
+        # Commit specifically for company to catch errors locally if needed, 
+        # but main commit is at end of function.
+        # session.commit() 
     except Exception as e:
         print(f"Error syncing to Company table: {e}")
+        # Don't fail the whole request for this side-effect
+        # session.rollback() # Might be needed if we want to proceed? 
+        # But main DB session is shared. We should ensure we don't break it.
+        pass
 
     session.commit()
     
-    return {
+    return JSONResponse({
         "success": True, 
         "outbound_sent": outbound_sent,
         "inbound_sent": inbound_sent,
         "client_id": profile.id
-    }
+    })
 
 
 
