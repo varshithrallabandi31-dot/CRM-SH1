@@ -308,15 +308,18 @@ async def root():
 
 @app.post("/login")
 async def login(data: LoginRequest, session: Session = Depends(get_session)):
-    """Simple hardcoded login for CRM"""
-    if data.email == "info@serphawk.com" and data.password == "serphawk123":
+    """Simple database login for CRM"""
+    statement = select(User).where(User.email == data.email)
+    user = session.exec(statement).first()
+    
+    if user and user.password == data.password:
         return {
             "success": True,
             "user": {
-                "id": 1,
-                "email": "info@serphawk.com",
-                "name": "SerpHawk Admin",
-                "role": "Admin"
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "role": user.role
             }
         }
     else:
