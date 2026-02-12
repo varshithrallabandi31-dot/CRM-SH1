@@ -1,6 +1,7 @@
 import smtplib
 import imaplib
 import time
+import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -70,7 +71,7 @@ def save_to_sent(to_email, msg, sender_email, sender_password, imap_server, imap
     except Exception as e:
         print(f"❌ Failed to save copy to Sent folder: {e}")
 
-def send_email_outlook(to_email, subject, body, sender_email, sender_password, smtp_server='smtp.office365.com', smtp_port=587, html=True, cc_emails=None):
+def send_email_outlook(to_email, subject, body, sender_email, sender_password, smtp_server='smtp.office365.com', smtp_port=587, html=True, cc_emails=None, imap_server=None):
     """
     Sends an email using SMTP.
     Supports both HTML and plain text emails.
@@ -98,14 +99,17 @@ def send_email_outlook(to_email, subject, body, sender_email, sender_password, s
         smtp_port = int(smtp_port)
         print(f"Connecting to {smtp_server}:{smtp_port}...")
         
+        # Prepare SSL context
+        context = ssl.create_default_context()
+
         # Use SSL for port 465, TLS for port 587
         if smtp_port == 465:
             # SSL connection
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port, context=context)
         else:
             # TLS connection
             server = smtplib.SMTP(smtp_server, smtp_port)
-            server.starttls()
+            server.starttls(context=context)
         
         server.login(sender_email, sender_password)
         text = msg.as_string()
@@ -118,15 +122,18 @@ def send_email_outlook(to_email, subject, body, sender_email, sender_password, s
         print(f"Email sent to {to_email} (CC: {cc_emails})")
         
         # Try to save to sent folder
-        imap_server = smtp_server
-        if 'smtp.' in smtp_server:
-            imap_server = smtp_server.replace('smtp.', 'imap.')
-        elif 'office365' in smtp_server:
-            imap_server = 'outlook.office365.com'
-        elif 'mail.' in smtp_server:
-            imap_server = smtp_server  # Already in correct format
+        target_imap = imap_server
+        if not target_imap:
+            # Heuristic detection if not provided
+            target_imap = smtp_server
+            if 'smtp.' in smtp_server:
+                target_imap = smtp_server.replace('smtp.', 'imap.')
+            elif 'office365' in smtp_server:
+                target_imap = 'outlook.office365.com'
+            elif 'mail.' in smtp_server:
+                target_imap = smtp_server  # Already in correct format
             
-        save_to_sent(to_email, msg, sender_email, sender_password, imap_server)
+        save_to_sent(to_email, msg, sender_email, sender_password, target_imap)
         
         return True
     except Exception as e:
