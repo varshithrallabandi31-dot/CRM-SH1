@@ -528,6 +528,27 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
         details=f"Offered: {services_offered} | Requested: {services_requested}"
     )
     session.add(activity)
+    
+    # 6. Sync to Company Table (User Request: Store in company table as well)
+    try:
+        company_stmt = select(Company).where(Company.primary_email == email)
+        existing_company = session.exec(company_stmt).first()
+        
+        if existing_company:
+             existing_company.company_name = company_name
+             if website_url:
+                existing_company.website_url = website_url
+             session.add(existing_company)
+        else:
+             new_company = Company(
+                 company_name=company_name,
+                 website_url=website_url,
+                 primary_email=email
+             )
+             session.add(new_company)
+    except Exception as e:
+        print(f"Error syncing to Company table: {e}")
+
     session.commit()
     
     return {
@@ -542,34 +563,29 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
 @app.get("/activities")
 async def get_activities(limit: int = 10, session: Session = Depends(get_session)):
     """
-    Fetch recent email activities from ActivityLog
+    Fetch recent outreach from Companies table (Syncing with legacy Company table as requested)
     """
-    statement = (
-        select(ActivityLog, ClientProfile, User)
-        .join(ClientProfile, ActivityLog.clientId == ClientProfile.id)
-        .join(User, ClientProfile.userId == User.id)
-        .where(ActivityLog.action == "Outreach Campaign")
-        .order_by(ActivityLog.createdAt.desc())
-        .limit(limit)
-    )
-    results = session.exec(statement).all()
-    
-    activities = []
-    for log, profile, user in results:
-        # Parse services from details or usage profile fields
-        services = profile.services_offered or ""
+    try:
+        # User requested "everything that was there in companies table"
+        statement = select(Company).order_by(Company.created_at.desc()).limit(limit)
+        results = session.exec(statement).all()
         
-        activities.append({
-            'id': str(log.id),
-            'company_name': profile.companyName,
-            'website_url': profile.websiteUrl,
-            'email': user.email,
-            'sent_at': log.createdAt.isoformat(),
-            'status': 'Sent',
-            'recommended_services': services
-        })
-        
-    return JSONResponse({'activities': activities})
+        activities = []
+        for company in results:
+            activities.append({
+                'id': str(company.id),
+                'company_name': company.company_name,
+                'website_url': company.website_url,
+                'email': company.primary_email,
+                'sent_at': company.created_at.isoformat() if company.created_at else datetime.now().isoformat(),
+                'status': 'Sent', 
+                'recommended_services': '-' 
+            })
+            
+        return JSONResponse({'activities': activities})
+    except Exception as e:
+        print(f"Error fetching activities from Company table: {e}")
+        return JSONResponse({'activities': [], 'error': str(e)})
 
 
 # ============================================================================
