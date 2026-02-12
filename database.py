@@ -239,17 +239,7 @@ def create_db_and_tables():
 
 
 
-class Company(SQLModel, table=True):
-    """
-    Company table for storing outreach targets (Legacy/Dual Sync)
-    """
-    __tablename__ = "companies"
-    
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    company_name: str
-    website_url: Optional[str] = None
-    primary_email: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 
 def get_session():
     """
