@@ -411,147 +411,162 @@ async def draft_lead(
 
 
 @app.post("/send-lead")
-async def send_lead(
-    request: Request,
-    data: dict,
-    session: Session = Depends(get_session)
-):
+async def send_lead_email(data: dict = Body(...), session: Session = Depends(get_session)):
     """
-    Step 2: Send the approved draft
+    Sends BOTH Outbound and Inbound emails and creates a Client Record.
     """
+    company_name = data.get('company_name')
+    email = data.get('primary_email')
+    outreach = data.get('outreach', {})
+    inbound = data.get('inbound', {})
+    website_url = data.get('website_url')
+    
+    # 1. Extract Services using AI
+    from modules.service_extractor import extract_services
+    services_offered = extract_services(outreach.get('body', ''))
+    services_requested = extract_services(inbound.get('body', ''))
+    
+    # 2. Send OUTBOUND Email
+    outbound_sent = False
     try:
-        to_email = data.get('primary_email')
-        subject = data.get('subject')
-        body_html = data.get('body')
-        company_name = data.get('company_name')
-        website_url = data.get('website_url')
-        recommended_services = data.get('recommended_services')
-
-        # Check eligibility/Rate Limit "just in case" (final gate)
-        # Note: We skip duplicate check here if user forces send, or re-check.
-        # Let's do a re-check to be safe.
-        normalized_url = website_url.strip().lower()
-        check_outreach_eligibility(session, normalized_url)
-
-        # Send Email (Skip if manual)
+        # Check if manual send or real send
         is_manual = data.get('manual', False)
-        if not is_manual:
-            if OUTLOOK_EMAIL and OUTLOOK_PASSWORD:
-                print(f"Sending email to {to_email} via Outlook...")
-                await run_in_threadpool(
-                    send_email_outlook,
-                    to_email=to_email,
-                    subject=subject,
-                    body=body_html,
-                    sender_email=OUTLOOK_EMAIL,
-                    sender_password=OUTLOOK_PASSWORD,
-                    smtp_server=SMTP_SERVER,
-                    smtp_port=SMTP_PORT,
-                    html=True
-                )
-            else:
-                 print(f"SIMULATING email to {to_email}: {subject}")
-        else:
-            print(f"MANUAL log for {to_email}: {subject}")
-
-        # DB Operations (Create Company + Log)
-        # Check if company exists first
-        stmt = select(Company).where(Company.website_url == normalized_url)
-        company = session.exec(stmt).first()
         
-        if not company:
-            company = Company(
-                company_name=company_name,
-                website_url=normalized_url,
-                primary_email=to_email,
-                email_sender=SENDER_EMAIL,
-                email_sent_status=True,
-                recommended_services=recommended_services
+        if not is_manual and OUTLOOK_EMAIL and OUTLOOK_PASSWORD:
+            send_email_outlook(
+                to_email=email,
+                subject=outreach.get('subject'),
+                body=outreach.get('body'),
+                sender_email=OUTLOOK_EMAIL,
+                sender_password=OUTLOOK_PASSWORD,
+                smtp_server=SMTP_SERVER,
+                smtp_port=SMTP_PORT,
+                html=True
             )
-            session.add(company)
+            outbound_sent = True
         else:
-            company.email_sent_status = True
-            company.primary_email = to_email # Update email if changed
-            if recommended_services:
-                company.recommended_services = recommended_services
-            session.add(company)
+            print(f"Manual/Simulated Outbound Email to {email}")
+            outbound_sent = True # Treat manual as sent for tracking
             
-        session.commit()
-        session.refresh(company)
-
-        # 1. Ensure User exists for this email
-        user_stmt = select(User).where(User.email == to_email)
-        user = session.exec(user_stmt).first()
-        if not user:
-            user = User(
-                email=to_email,
-                password="password123", # Default password
-                name=company_name,
-                role="Client"
-            )
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-        
-        # 2. Ensure Client Profile exists and is linked
-        profile_stmt = select(ClientProfile).where(ClientProfile.userId == user.id)
-        profile = session.exec(profile_stmt).first()
-        if not profile:
-            profile = ClientProfile(
-                userId=user.id,
-                companyName=company_name,
-                websiteUrl=normalized_url,
-                status="Active",
-                recommended_services=recommended_services
-            )
-            session.add(profile)
-        else:
-            # Update background profile info too
-            if recommended_services:
-                profile.recommended_services = recommended_services
-            session.add(profile)
-            
-        session.commit()
-
-        # Log EmailActivity
-        log = EmailLog(
-            company_id=company.id,
-            sender_email=SENDER_EMAIL,
-            sent_at=datetime.utcnow()
-        )
-        session.add(log)
-        session.commit()
-        
-        return JSONResponse({'success': True})
-
     except Exception as e:
-        traceback.print_exc()
-        return JSONResponse({'success': False, 'error': str(e)}, status_code=500)
+        print(f"Failed to send outbound email: {e}")
+
+    # 3. Send INBOUND Email (to same person, simulating reply/inbound)
+    inbound_sent = False
+    try:
+        if not is_manual and OUTLOOK_EMAIL and OUTLOOK_PASSWORD:
+            # Checking if we should delay slightly or just send immediately
+            # For now, sending immediately as per request
+            send_email_outlook(
+                to_email=email, 
+                subject=inbound.get('subject'),
+                body=inbound.get('body'),
+                sender_email=OUTLOOK_EMAIL,
+                sender_password=OUTLOOK_PASSWORD,
+                smtp_server=SMTP_SERVER,
+                smtp_port=SMTP_PORT,
+                html=True
+            )
+            inbound_sent = True
+        else:
+             print(f"Manual/Simulated Inbound Email to {email}")
+             inbound_sent = True
+             
+    except Exception as e:
+        print(f"Failed to send inbound email: {e}")
+        
+    # 4. Create/Update Client Record
+    # Check if user exists first
+    stmt = select(User).where(User.email == email)
+    user = session.exec(stmt).first()
+    
+    if not user:
+        # Create phantom user for client
+        user = User(
+            email=email,
+            password="temp_password", # Should be randomized
+            name=company_name,
+            role="Client"
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        
+    # Create or Get Profile
+    stmt_profile = select(ClientProfile).where(ClientProfile.userId == user.id)
+    profile = session.exec(stmt_profile).first()
+    
+    if not profile:
+        profile = ClientProfile(
+            userId=user.id,
+            companyName=company_name,
+            websiteUrl=website_url,
+            status="Active",
+            services_offered=services_offered,
+            services_requested=services_requested,
+            outbound_email_sent=outbound_sent,
+            inbound_email_sent=inbound_sent
+        )
+        session.add(profile)
+    else:
+        # Update existing
+        profile.services_offered = services_offered
+        profile.services_requested = services_requested
+        profile.outbound_email_sent = outbound_sent
+        profile.inbound_email_sent = inbound_sent
+        session.add(profile)
+        
+    session.commit()
+    
+    # 5. Create Activity Log
+    activity = ActivityLog(
+        userId=user.id,
+        clientId=profile.id,
+        action="Outreach Campaign",
+        method="Email", 
+        content=f"Sent outbound: {outbound_sent}, inbound: {inbound_sent}",
+        details=f"Offered: {services_offered} | Requested: {services_requested}"
+    )
+    session.add(activity)
+    session.commit()
+    
+    return {
+        "success": True, 
+        "outbound_sent": outbound_sent,
+        "inbound_sent": inbound_sent,
+        "client_id": profile.id
+    }
+
 
 
 @app.get("/activities")
 async def get_activities(limit: int = 10, session: Session = Depends(get_session)):
     """
-    Fetch recent email activities
+    Fetch recent email activities from ActivityLog
     """
     statement = (
-        select(EmailLog, Company)
-        .join(Company, EmailLog.company_id == Company.id)
-        .order_by(EmailLog.sent_at.desc())
+        select(ActivityLog, ClientProfile, User)
+        .join(ClientProfile, ActivityLog.clientId == ClientProfile.id)
+        .join(User, ClientProfile.userId == User.id)
+        .where(ActivityLog.action == "Outreach Campaign")
+        .order_by(ActivityLog.createdAt.desc())
         .limit(limit)
     )
     results = session.exec(statement).all()
     
     activities = []
-    for log, comp in results:
+    for log, profile, user in results:
+        # Parse services from details or usage profile fields
+        services = profile.services_offered or ""
+        
         activities.append({
-            'id': str(log.id), # Convert UUID to string
-            'company_name': comp.company_name,
-            'website_url': comp.website_url,
-            'email': comp.primary_email,
-            'sent_at': log.sent_at.isoformat(),
+            'id': str(log.id),
+            'company_name': profile.companyName,
+            'website_url': profile.websiteUrl,
+            'email': user.email,
+            'sent_at': log.createdAt.isoformat(),
             'status': 'Sent',
-            'recommended_services': comp.recommended_services
+            'recommended_services': services
         })
         
     return JSONResponse({'activities': activities})

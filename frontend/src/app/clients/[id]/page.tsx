@@ -387,6 +387,75 @@ export default function ClientDetailPage() {
 
         {/* Sidebar Widgets (Right) */}
         <div className="space-y-6">
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-blue-600" />
+                  Service Analysis
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500 mb-1">Services Offered</p>
+                    <div className="flex flex-wrap gap-2">
+                      {client.services_offered ? (
+                        client.services_offered.split(',').map((s: string, i: number) => (
+                          <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
+                            {s.trim()}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">No services recorded</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-sm font-semibold text-gray-500 mb-1">Services Requested</p>
+                    <div className="flex flex-wrap gap-2">
+                      {client.services_requested ? (
+                        client.services_requested.split(',').map((s: string, i: number) => (
+                          <span key={i} className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium border border-purple-100">
+                            {s.trim()}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">No services recorded</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <Send className="w-5 h-5 text-green-600" />
+                  Email Campaign Status
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <p className="text-sm text-gray-500 mb-1">Outbound (Offer)</p>
+                     {client.outbound_email_sent ? (
+                        <div className="flex items-center gap-2 text-green-600 font-bold">
+                          <CheckCircle className="w-5 h-5" /> Sent
+                        </div>
+                     ) : (
+                        <div className="flex items-center gap-2 text-gray-400 font-bold">
+                          <Clock className="w-5 h-5" /> Pending
+                        </div>
+                     )}
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <p className="text-sm text-gray-500 mb-1">Inbound (Request)</p>
+                     {client.inbound_email_sent ? (
+                        <div className="flex items-center gap-2 text-green-600 font-bold">
+                          <CheckCircle className="w-5 h-5" /> Sent
+                        </div>
+                     ) : (
+                        <div className="flex items-center gap-2 text-gray-400 font-bold">
+                          <Clock className="w-5 h-5" /> Pending
+                        </div>
+                     )}
+                  </div>
+                </div>
+              </div>
           <div className="bg-white rounded-xl border shadow-sm p-6">
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" /> Current Status

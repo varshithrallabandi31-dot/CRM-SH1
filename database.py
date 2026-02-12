@@ -94,6 +94,12 @@ class ClientProfile(SQLModel, table=True):
     nextMilestone: Optional[str] = None
     nextMilestoneDate: Optional[str] = None
     
+    # Service Tracking
+    services_offered: Optional[str] = Field(default=None, sa_column=Column(Text))
+    services_requested: Optional[str] = Field(default=None, sa_column=Column(Text))
+    outbound_email_sent: bool = Field(default=False)
+    inbound_email_sent: bool = Field(default=False)
+    
     # Relationships
     user: Optional[User] = Relationship(back_populates="profile")
     remarks: List["Remark"] = Relationship(back_populates="client")
@@ -220,6 +226,13 @@ def create_db_and_tables():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"nextMilestone\" VARCHAR(255)"))
             conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"nextMilestoneDate\" VARCHAR(255)"))
+            
+            # Service Tracking Migrations
+            conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"services_offered\" TEXT"))
+            conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"services_requested\" TEXT"))
+            conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"outbound_email_sent\" BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS \"inbound_email_sent\" BOOLEAN DEFAULT FALSE"))
+            
             conn.commit()
     except Exception as e:
         print(f"Migration note: {e}")

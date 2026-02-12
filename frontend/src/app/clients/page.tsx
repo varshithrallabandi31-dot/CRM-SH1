@@ -14,6 +14,9 @@ interface Client {
   status: string;
   keywords: string[];
   website: string;
+  services_offered?: string;
+  services_requested?: string;
+  companyName?: string;
 }
 
 export default function ClientsPage() {
@@ -215,11 +218,11 @@ export default function ClientsPage() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                <th className="px-6 py-4 font-semibold">Project</th>
-                <th className="px-6 py-4 font-semibold">Category</th>
+                <th className="px-6 py-4 font-semibold">Client / Project</th>
                 <th className="px-6 py-4 font-semibold">Email</th>
+                <th className="px-6 py-4 font-semibold">Services Offered</th>
+                <th className="px-6 py-4 font-semibold">Services Requested</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Keywords</th>
                 <th className="px-6 py-4 font-semibold"></th>
               </tr>
             </thead>
@@ -231,13 +234,19 @@ export default function ClientsPage() {
               ) : filteredClients.map((client) => (
                 <tr key={client.id} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-6 py-4">
-                    <span className="font-bold text-gray-900">{client.projectName}</span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 text-sm">
-                    {client.category}
+                    <div>
+                        <span className="font-bold text-gray-900 block">{client.projectName || client.companyName || 'Unnamed Client'}</span>
+                        <a href={client.website} target="_blank" className="text-xs text-blue-500 hover:underline">{client.website}</a>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-gray-500 text-sm">
                     {client.email}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate" title={client.services_offered}>
+                    {client.services_offered || '-'}
+                  </td>
+                   <td className="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate" title={client.services_requested}>
+                    {client.services_requested || '-'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -245,24 +254,9 @@ export default function ClientsPage() {
                       <span className="text-sm font-medium">{client.status}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {client.keywords?.slice(0, 2).map((k, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded-full">
-                          {k}
-                        </span>
-                      ))}
-                      {client.keywords?.length > 2 && (
-                        <span className="text-[10px] text-gray-400">+{client.keywords.length - 2}</span>
-                      )}
-                    </div>
-                  </td>
                   <td className="px-6 py-4 text-right">
-                    <Link 
-                      href={`/clients/${client.id}`}
-                      className="p-2 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-lg inline-flex"
-                    >
-                      <ExternalLink className="w-4 h-4" />
+                    <Link href={`/clients/${client.id}`} className="p-2 hover:bg-gray-200 rounded-full inline-block transition-colors">
+                      <ChevronRight className="w-5 h-5 text-gray-400" />
                     </Link>
                   </td>
                 </tr>

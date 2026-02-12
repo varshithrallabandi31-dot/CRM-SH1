@@ -99,20 +99,22 @@ export default function EmailAgentPage() {
     setSending(true);
     setError(null);
 
-    const activeDraft = draft[draftType];
-
     try {
-      await axios.post('http://localhost:8000/send-lead', {
+      // Send both drafts (handled by backend)
+      const res = await axios.post('http://localhost:8000/send-lead', {
         ...draft,
-        subject: activeDraft.subject,
-        body: activeDraft.body,
         manual: isManual
       });
 
-      setSuccess(isManual ? `Lead recorded successfully for ${draft.company_name}!` : `Email successfully sent to ${draft.company_name}!`);
-      setDraft(null);
-      setFormData({ company_name: '', website_url: '', primary_email: '' });
-      fetchActivities(); // Refresh table
+      if (res.data.success) {
+        setSuccess(isManual ? 
+          `Lead recorded! ${res.data.outbound_sent ? 'Outbound' : ''} ${res.data.inbound_sent ? 'Inbound' : ''}` : 
+          `Emails sent successfully to ${draft.company_name}!`
+        );
+        setDraft(null);
+        setFormData({ company_name: '', website_url: '', primary_email: '' });
+        fetchActivities(); // Refresh table
+      }
 
     } catch (err: any) {
       console.error(err);
