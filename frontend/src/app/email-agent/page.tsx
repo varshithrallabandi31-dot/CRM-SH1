@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bot, Mail, Globe, User, CheckCircle, AlertCircle, Loader2, Send, FileEdit, Clock, Hand } from 'lucide-react';
+import { API_BASE_URL } from '@/config';
 
 interface Draft {
   company_name: string;
