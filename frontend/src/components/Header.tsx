@@ -2,9 +2,7 @@
 
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { useRole } from "@/context/RoleContext";
-
-type Role = 'Admin' | 'Employee' | 'Client';
+import { useRole, Role } from "@/context/RoleContext";
 
 interface HeaderProps {
   currentRole: Role;
@@ -20,6 +18,7 @@ export function Header({ currentRole, setRole }: HeaderProps) {
       case 'Admin': return { name: 'John Admin', role: 'Admin', img: 'https://ui-avatars.com/api/?name=John+Admin&background=random' };
       case 'Employee': return { name: 'Sarah Employee', role: 'Employee', img: 'https://ui-avatars.com/api/?name=Sarah+Emp&background=random' };
       case 'Client': return { name: 'Mike Client', role: 'Client', img: 'https://ui-avatars.com/api/?name=Mike+Client&background=random' };
+      case 'Intern': return { name: 'Alex Intern', role: 'Intern', img: 'https://ui-avatars.com/api/?name=Alex+Intern&background=random' };
     }
   };
 
@@ -41,7 +40,7 @@ export function Header({ currentRole, setRole }: HeaderProps) {
 
         <div className="flex items-center gap-6">
           <div className="flex bg-gray-100 p-1 rounded-lg">
-            {(['Admin', 'Employee', 'Client'] as Role[]).map((role) => (
+            {(['Admin', 'Employee', 'Client', 'Intern'] as Role[]).map((role) => (
               <button
                 key={role}
                 onClick={() => setRole(role)}

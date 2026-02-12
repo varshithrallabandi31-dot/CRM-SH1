@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useRouter, usePathname } from 'next/navigation';
 import { API_BASE_URL } from '@/config';
 
-type Role = 'Admin' | 'Employee' | 'Client' | 'Intern';
+export type Role = 'Admin' | 'Employee' | 'Client' | 'Intern';
 
 interface User {
   id: number;

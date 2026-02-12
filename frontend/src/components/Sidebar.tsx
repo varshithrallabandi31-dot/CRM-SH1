@@ -16,9 +16,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useRole } from '@/context/RoleContext';
-
-type Role = 'Admin' | 'Employee' | 'Client' | 'Intern';
+import { useRole, Role } from '@/context/RoleContext';
 
 interface SidebarProps {
   role: Role;
