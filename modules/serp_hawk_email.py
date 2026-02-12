@@ -56,10 +56,17 @@ def generate_serp_hawk_email(company_info, market_analysis, service_matches, con
         - Keep it very short (under 100 words).
         - Signature: Brajesh Kumar, SERP Hawk.
         
-        Output Format (JSON):
+        CRITICAL JSON FORMATTING:
+        - You MUST return ONLY valid JSON, nothing else
+        - Escape all quotes inside string values using backslash (\\")
+        - Escape all newlines inside strings as \\n
+        - Do NOT include any markdown formatting or code blocks
+        - Do NOT include any text outside the JSON object
+        
+        Output Format (STRICT JSON ONLY):
         {{
             "subject": "Inquiry regarding {company_name} services",
-            "body_html": "HTML formatted email content"
+            "body_html": "HTML formatted email content with properly escaped quotes"
         }}
         """
     else:
@@ -67,7 +74,7 @@ def generate_serp_hawk_email(company_info, market_analysis, service_matches, con
         services = service_matches.get('recommended_services', [])[:3]
         service_descriptions = ""
         for i, svc in enumerate(services, 1):
-            service_descriptions += f"\n{i}. **{svc.get('service_name')}**: {svc.get('why_relevant')}\n   Expected Impact: {svc.get('expected_impact')}"
+            service_descriptions += f"\\n{i}. **{svc.get('service_name')}**: {svc.get('why_relevant')}\\n   Expected Impact: {svc.get('expected_impact')}"
         
         pain_points = market_analysis.get('pain_points', [])
         growth_potential = market_analysis.get('growth_potential', '')
@@ -99,22 +106,66 @@ def generate_serp_hawk_email(company_info, market_analysis, service_matches, con
         5. CTA: Simple and direct (Reply 'INTERESTED' or call 089213 81769)
         6. P.S.: Urgency or bonus insight
         
-        Output Format (JSON):
+        CRITICAL JSON FORMATTING:
+        - You MUST return ONLY valid JSON, nothing else
+        - Escape all quotes inside string values using backslash (\\")
+        - Escape all newlines inside strings as \\n
+        - Do NOT include any markdown formatting or code blocks
+        - Do NOT include any text outside the JSON object
+        
+        Output Format (STRICT JSON ONLY):
         {{
             "subject": "Curiosity-driven subject line",
-            "body_html": "HTML email focusing on RESULTS and TRANSFORMATION"
+            "body_html": "HTML email focusing on RESULTS and TRANSFORMATION with properly escaped quotes"
         }}
         """
+
     
     try:
         response = model.generate_content(prompt)
         content = response.text
+        
+        # Print raw response for debugging
+        print(f"DEBUG: Raw Gemini response:\n{content[:500]}")
+        
+        # Try to extract JSON from response
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
         elif "```" in content:
             content = content.split("```")[1].split("```")[0]
+        
+        # Clean up the content
+        content = content.strip()
+        
+        # Try parsing the JSON
+        try:
+            email_data = json.loads(content)
+        except json.JSONDecodeError as json_err:
+            print(f"JSON Parse Error: {json_err}")
+            print(f"Content that failed to parse:\n{content}")
             
-        email_data = json.loads(content.strip())
+            # Fallback 1: Try to extract JSON using regex
+            import re
+            json_match = re.search(r'\{[^{}]*"subject"[^{}]*"body_html"[^{}]*\}', content, re.DOTALL)
+            if json_match:
+                try:
+                    email_data = json.loads(json_match.group(0))
+                    print("✓ Successfully recovered JSON using regex")
+                except:
+                    raise json_err
+            else:
+                # Fallback 2: Try to find just subject and body fields
+                subject_match = re.search(r'"subject"\s*:\s*"([^"]*)"', content)
+                body_match = re.search(r'"body_html"\s*:\s*"([^"]*)"', content, re.DOTALL)
+                
+                if subject_match and body_match:
+                    email_data = {
+                        "subject": subject_match.group(1),
+                        "body_html": body_match.group(1)
+                    }
+                    print("✓ Successfully extracted subject and body using regex")
+                else:
+                    raise json_err
         
         # Ensure we have HTML formatting
         if 'body_html' not in email_data and 'body' in email_data:
@@ -124,6 +175,8 @@ def generate_serp_hawk_email(company_info, market_analysis, service_matches, con
         
     except Exception as e:
         print(f"Error generating SERP Hawk email ({draft_type}): {e}")
+        import traceback
+        traceback.print_exc()
         # Simplistic fallback
         return {
             "subject": f"Question for the {company_name} team" if draft_type == "inbound" else f"Growth for {company_name}",
