@@ -533,6 +533,9 @@ async def send_lead_email(data: dict = Body(...), session: Session = Depends(get
     )
     session.add(activity)
     
+    # Prepare services string for Company table
+    recommended_services_str = ", ".join(services_offered) if isinstance(services_offered, list) else str(services_offered or "")
+
     # 6. Sync to Company Table (User Request: Store in company table as well)
     try:
         # Check for existing company by Email OR Website URL to avoid Unique violations
