@@ -1,0 +1,112 @@
+Tables: ['users', 'emails', 'remarks', 'documents', 'activity_logs', 'prospects', 'agent_email_logs', 'client_profiles', 'chat_messages', 'chat_sessions', 'companies', 'email_logs']
+
+Table: users
+  Column: id (INTEGER)
+  Column: email (TEXT)
+  Column: password (TEXT)
+  Column: name (TEXT)
+  Column: role (VARCHAR(8))
+  Column: createdAt (TIMESTAMP)
+  Column: updatedAt (TIMESTAMP)
+
+Table: emails
+  Column: id (INTEGER)
+  Column: subject (TEXT)
+  Column: body (TEXT)
+  Column: senderId (INTEGER)
+  Column: recipientId (INTEGER)
+  Column: status (VARCHAR(8))
+  Column: isOpened (BOOLEAN)
+  Column: openedAt (TIMESTAMP)
+  Column: valid (BOOLEAN)
+  Column: conversationId (TEXT)
+  Column: createdAt (TIMESTAMP)
+
+Table: remarks
+  Column: id (INTEGER)
+  Column: content (TEXT)
+  Column: authorId (INTEGER)
+  Column: clientId (INTEGER)
+  Column: isInternal (BOOLEAN)
+  Column: createdAt (TIMESTAMP)
+
+Table: documents
+  Column: id (INTEGER)
+  Column: filename (TEXT)
+  Column: fileUrl (TEXT)
+  Column: ocrText (TEXT)
+  Column: status (VARCHAR(9))
+  Column: uploaderId (INTEGER)
+  Column: clientId (INTEGER)
+  Column: createdAt (TIMESTAMP)
+
+Table: activity_logs
+  Column: id (INTEGER)
+  Column: userId (INTEGER)
+  Column: action (TEXT)
+  Column: details (TEXT)
+  Column: createdAt (TIMESTAMP)
+
+Table: prospects
+  Column: id (INTEGER)
+  Column: companyName (TEXT)
+  Column: websiteUrl (TEXT)
+  Column: primaryEmail (TEXT)
+  Column: emailSender (TEXT)
+  Column: emailSentStatus (BOOLEAN)
+  Column: recommendedServices (TEXT)
+  Column: createdAt (TIMESTAMP)
+
+Table: agent_email_logs
+  Column: id (INTEGER)
+  Column: prospectId (INTEGER)
+  Column: senderEmail (TEXT)
+  Column: sentAt (TIMESTAMP)
+
+Table: client_profiles
+  Column: id (INTEGER)
+  Column: userId (INTEGER)
+  Column: companyName (TEXT)
+  Column: phone (TEXT)
+  Column: address (TEXT)
+  Column: status (TEXT)
+  Column: customFields (JSONB)
+  Column: assignedEmployeeId (INTEGER)
+  Column: projectName (TEXT)
+  Column: gmbName (TEXT)
+  Column: seoStrategy (TEXT)
+  Column: tagline (TEXT)
+  Column: targetKeywords (JSONB)
+  Column: websiteUrl (TEXT)
+
+Table: chat_messages
+  Column: id (INTEGER)
+  Column: sessionId (INTEGER)
+  Column: message (TEXT)
+  Column: sender (VARCHAR(6))
+  Column: sentToWhatsApp (BOOLEAN)
+  Column: whatsappMessageId (TEXT)
+  Column: createdAt (TIMESTAMP)
+
+Table: chat_sessions
+  Column: id (INTEGER)
+  Column: clientProfileId (INTEGER)
+  Column: lastMessageAt (TIMESTAMP)
+  Column: isActive (BOOLEAN)
+  Column: createdAt (TIMESTAMP)
+
+Table: companies
+  Column: id (UUID)
+  Column: company_name (VARCHAR)
+  Column: website_url (VARCHAR(500))
+  Column: primary_email (VARCHAR)
+  Column: email_sender (VARCHAR)
+  Column: email_sent_status (BOOLEAN)
+  Column: recommended_services (VARCHAR)
+  Column: created_at (TIMESTAMP)
+
+Table: email_logs
+  Column: id (UUID)
+  Column: company_id (UUID)
+  Column: sender_email (VARCHAR)
+  Column: sent_at (TIMESTAMP)

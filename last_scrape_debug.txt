@@ -1,0 +1,196 @@
+--- MAIN PAGE (https://antigravity.google/) ---
+Google Antigravity
+Product
+Use Cases
+keyboard_arrow_down
+Pricing
+Blog
+Resources
+keyboard_arrow_down
+Download
+download
+menu
+Product
+Use Cases
+keyboard_arrow_down Built for developers in the agent-first era Explore how Google Antigravity helps you build See overview workspaces
+Professional
+keyboard_arrow_right code_blocks
+Frontend
+keyboard_arrow_right stacks
+Fullstack
+keyboard_arrow_right
+Pricing
+Blog
+Resources
+keyboard_arrow_down Everything you need to stay up-to-date and get help
+Documentation
+keyboard_arrow_right
+Changelog
+keyboard_arrow_right
+Support
+keyboard_arrow_right
+Press
+keyboard_arrow_right
+Releases
+keyboard_arrow_right E x p e r i e n c e
+l i f t o f f
+w i t h
+t h e
+n e x t - g e n e r a t i o n
+I D E
+Download for Windows
+Explore use cases
+close play_arrow Play intro
+play_arrow
+keyboard_tab
+refresh
+code
+terminal
+keyboard_command_key
+check_circle
+spark
+device_hub
+developer_mode_tv
+keyboard_return
+data_object
+search_spark
+pen_spark
+dashboard_customize
+deployed_code
+merge
+folder
+spark
+plus_code
+code_blocks
+file_copy
+commit
+G o o g l e
+A n t i g r a v i t y
+i s
+o u r
+a g e n t i c
+d e v e l o p m e n t
+p l a t f o r m ,
+e v o l v i n g
+t h e
+I D E
+i n t o
+t h e
+a g e n t - f i r s t
+e r a . An AI IDE Core G o o g l e
+A n t i g r a v i t y ' s
+E d i t o r
+v i e w
+o f f e r s
+t a b
+a u t o c o m p l e t i o n ,
+n a t u r a l
+l a n g u a g e
+c o d e
+c o m m a n d s ,
+a n d
+a
+c o n f i g u r a b l e ,
+a n d
+c o n t e x t - a w a r e
+c o n f i g u r a b l e
+a g e n t . Higher-level Abstractions
+A
+m o r e
+i n t u i t i v e
+t a s k - b a s e d
+a p p r o a c h
+t o
+m o n i t o r i n g
+a g e n t
+a c t i v i t y ,
+p r e s e n t i n g
+y o u
+w i t h
+e s s e n t i a l
+a r t i f a c t s
+a n d
+v e r i f i c a t i o n
+r e s u l t s
+t o
+b u i l d
+t r u s t . Cross-surface Agents S y n c h r o n i z e d
+a g e n t i c
+c o n t r o l
+a c r o s s
+y o u r
+e d i t o r ,
+t e r m i n a l ,
+a n d
+b r o w s e r
+f o r
+p o w e r f u l
+d e v e l o p m e n t
+w o r k f l o w s . User Feedback I n t u i t i v e l y
+i n t e g r a t e
+f e e d b a c k
+a c r o s s
+s u r f a c e s
+a n d
+a r t i f a c t s
+t o
+g u i d e
+a n d
+r e f i n e
+t h e
+a g e n t ’ s
+w o r k . An Agent-First Experience M a n a g e
+m u l t i p l e
+a g e n t s
+a t
+t h e
+s a m e
+t i m e ,
+a c r o s s
+a n y
+w o r k s p a c e ,
+f r o m
+o n e
+c e n t r a l
+m i s s i o n
+c o n t r o l
+v i e w .
+Explore Product
+close Built for developers for the agent-first era Google Antigravity is built for user trust, whether you're a professional developer working in a large enterprise codebase, a hobbyist vibe-coding in their spare time, or anyone in between. F r o n t e n d
+d e v e l o p e r
+play_arrow
+play_arrow Watch case F u l l
+s t a c k
+d e v e l o p e r
+play_arrow
+play_arrow Watch case E n t e r p r i s e
+d e v e l o p e r
+play_arrow
+play_arrow Watch case Frontend developer Streamline UX development by leveraging browser-in-the-loop agents to automate repetitive tasks. View case Full stack developer Build production-ready applications with confidence with thoroughly designed artifacts and comprehensive verification tests. View case Enterprise developer Streamline operations and reduce context switching by orchestrating agents across workspaces using the Agent Manager. View case keyboard_arrow_left keyboard_arrow_right Available at no charge For developers Achieve new heights
+Download
+Coming soon For organizations Level up your entire team
+Notify me
+Latest Blogs
+View blog
+Gemini 3 Flash in Google Antigravity Dec 17, 2025 Product Read blog Nano Banana Pro in Google Antigravity Nov 20, 2025 Product Read blog Introducing Google Antigravity Nov 18, 2025 Product Read blog keyboard_arrow_left keyboard_arrow_right D o w n l o a d
+G o o g l e
+A n t i g r a v i t y
+f o r
+W i n d o w s
+Download for x64
+Download for ARM64
+Experience liftoff
+Download
+Product
+Docs
+Changelog
+Press
+Releases
+Blog
+Pricing
+Use Cases
+About Google
+Google Products
+Privacy
+Terms
+Manage cookies
