@@ -304,7 +304,9 @@ export default function EmailAgentPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
               <h2 className="font-bold text-lg text-slate-800">Recent Outreach Activities</h2>
-              <button className="text-sm text-blue-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">View All</button>
+              <Link href="/clients" className="text-sm text-blue-600 font-semibold hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                View All
+              </Link>
             </div>
 
             {activities.length === 0 ? (
