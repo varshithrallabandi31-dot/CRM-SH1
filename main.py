@@ -151,14 +151,29 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*" # Changed back to wildcard as Railway routing can drop exact matches
+        "http://localhost:3000",
+        "https://crm.allytechcourses.com",
+        "https://crm-serphawk-production.up.railway.app",
+        "*"
     ],
-    allow_origin_regex=r"https?://.*", # Fallback to allow regex
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"], # Highly permissive for preflights
+    expose_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_cors_headers_fallback(request: Request, call_next):
+    # Absolute fallback to force headers on all requests just in case the proxy strips them
+    response = await call_next(request)
+    origin = request.headers.get("origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        
+    return response
 
 # Mount static files
 os.makedirs("static", exist_ok=True)
