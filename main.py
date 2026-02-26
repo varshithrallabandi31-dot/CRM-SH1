@@ -151,13 +151,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "https://crm.allytechcourses.com",
-        "https://crm-serphawk-production.up.railway.app"
+        "*" # Changed back to wildcard as Railway routing can drop exact matches
     ],
+    allow_origin_regex=r"https?://.*", # Fallback to allow regex
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"], # Highly permissive for preflights
 )
 
 # Mount static files
